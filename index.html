@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PulseFit | Premium Progress &amp; Weight Tracker</title>
+    <meta name="description" content="Track your weight goals, workouts, and overall fitness metrics with a premium interactive dashboard.">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <!-- ======================================================
+         USERNAME SCREEN — shown before the main app
+         ====================================================== -->
+    <div class="username-screen" id="username-screen">
+        <div class="username-card">
+            <!-- Logo -->
+            <div style="display:flex; align-items:center; gap:0.75rem; justify-content:center; margin-bottom:2rem;">
+                <div class="logo-icon" style="width:48px; height:48px;">
+                    <svg viewBox="0 0 24 24"><path d="M20.57 14.86L22 13.43L20.57 12L17 15.57L8.43 7L12 3.43L10.57 2L9.14 3.43L7.71 2L6.29 3.43L4.86 2L3.43 3.43L2 2L.57 3.43L2 4.86L.57 6.29L2 7.71L.57 9.14L2 10.57L3.43 12L7 8.43L15.57 17L12 20.57L13.43 22L14.86 20.57L16.29 22L17.71 20.57L19.14 22L20.57 20.57L22 22L23.43 20.57L22 19.14L23.43 17.71L22 16.29L23.43 14.86L20.57 14.86Z"/></svg>
+                </div>
+                <span class="logo-text" style="font-size:2rem;">PulseFit</span>
+            </div>
+
+            <h2 style="font-family:var(--font-heading); font-size:1.5rem; font-weight:800; text-align:center; margin-bottom:0.5rem;">Who's Training Today?</h2>
+            <p style="color:var(--text-secondary); font-size:0.9rem; text-align:center; margin-bottom:1.75rem;">Enter a username to load your saved data, or pick a new one to start fresh.</p>
+
+            <div class="form-group" style="margin-bottom:1.25rem;">
+                <label for="username-input">Your Username</label>
+                <input type="text" id="username-input" placeholder="e.g. ironmike99, beast_mode, fitninja" autocomplete="off" maxlength="40" style="font-size:1.1rem; text-align:center;">
+            </div>
+
+            <button class="btn-primary" id="btn-username-go" style="width:100%; justify-content:center; font-size:1.05rem; padding:0.9rem;">
+                Start Training 💪
+            </button>
+
+            <!-- Security notice -->
+            <div class="username-warning">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0;margin-top:2px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                <span><strong>No passwords, no accounts.</strong> Anyone who knows your username can view or edit your data. Do <em>not</em> use your real name, email, or anything sensitive. Data is saved locally on this device.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP (hidden until username is set) -->
+    <div class="app-container" id="main-app" style="display:none;">
+        <!-- Sidebar Navigation -->
+        <aside>
+            <div>
+                <div class="logo-container">
+                    <div class="logo-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M20.57 14.86L22 13.43L20.57 12L17 15.57L8.43 7L12 3.43L10.57 2L9.14 3.43L7.71 2L6.29 3.43L4.86 2L3.43 3.43L2 2L.57 3.43L2 4.86L.57 6.29L2 7.71L.57 9.14L2 10.57L3.43 12L7 8.43L15.57 17L12 20.57L13.43 22L14.86 20.57L16.29 22L17.71 20.57L19.14 22L20.57 20.57L22 22L23.43 20.57L22 19.14L23.43 17.71L22 16.29L23.43 14.86L20.57 14.86Z"/>
+                        </svg>
+                    </div>
+                    <span class="logo-text">PulseFit</span>
+                </div>
+                <ul class="sidebar-menu">
+                    <li class="menu-item active" data-view="dashboard">
+                        <button>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="7" height="9"></rect>
+                                <rect x="14" y="3" width="7" height="5"></rect>
+                                <rect x="14" y="12" width="7" height="9"></rect>
+                                <rect x="3" y="16" width="7" height="5"></rect>
+                            </svg>
+                            Dashboard
+                        </button>
+                    </li>
+                    <li class="menu-item" data-view="weight">
+                        <button>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                            </svg>
+                            Weight Tracker
+                        </button>
+                    </li>
+                    <li class="menu-item" data-view="workouts">
+                        <button>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                                <path d="M2 8h16v8H2z"></path>
+                                <line x1="6" y1="12" x2="6.01" y2="12"></line>
+                                <line x1="10" y1="12" x2="10.01" y2="12"></line>
+                                <line x1="14" y1="12" x2="14.01" y2="12"></line>
+                            </svg>
+                            Workout Log
+                        </button>
+                    </li>
+                    <li class="menu-item" data-view="plans">
+                        <button>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                            </svg>
+                            Workout Plans
+                        </button>
+                    </li>
+                    <li class="menu-item" data-view="tools">
+                        <button>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="16"></line>
+                                <line x1="8" y1="12" x2="16" y2="12"></line>
+                            </svg>
+                            Fitness Tools
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="sidebar-footer">
+                <!-- Active user chip -->
+                <div class="user-chip" id="user-chip">
+                    <div class="avatar" id="sidebar-avatar">L1</div>
+                    <div class="profile-info">
+                        <span class="profile-name" id="sidebar-username-display">—</span>
+                        <span class="profile-role" id="sidebar-level">Level 1 Novice</span>
+                    </div>
+                </div>
+                <button class="btn-switch-user" id="btn-switch-user" title="Switch User">
+                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    Switch User
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main>
+            <!-- HEADER -->
+            <header>
+                <div class="header-title">
+                    <h1 id="view-title">Dashboard Overview</h1>
+                    <p id="view-subtitle">Track your physical transformation progress and daily workouts.</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn-secondary" id="btn-export-data">Backup Data</button>
+                    <button class="btn-secondary" id="btn-import-data">Import Data</button>
+                    <button class="btn-primary" id="btn-global-action">Log New Weight</button>
+                </div>
+            </header>
+
+            <!-- VIEW 1: DASHBOARD OVERVIEW -->
+            <section id="view-dashboard" class="app-view active">
+                <!-- Level / Gamification Card -->
+                <div class="card-visual" style="min-height: auto; margin-bottom: 2rem; padding: 1.5rem; flex-direction: row; align-items: center; justify-content: space-between; gap: 2rem; background: linear-gradient(135deg, rgba(127, 0, 255, 0.15), rgba(6, 182, 212, 0.15)); border-color: rgba(168, 85, 247, 0.3);">
+                    <div style="display: flex; align-items: center; gap: 1.5rem; flex-grow: 1;">
+                        <div style="background: var(--accent-glow); width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 800; font-family: var(--font-heading); box-shadow: 0 0 20px rgba(168, 85, 247, 0.5);" id="dashboard-level-badge">
+                            L1
+                        </div>
+                        <div style="flex-grow: 1;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 0.5rem;">
+                                <div>
+                                    <strong style="font-size: 1.25rem; font-family: var(--font-heading);" id="dashboard-rank-title">Fit Novice</strong>
+                                    <span style="font-size: 0.85rem; color: var(--text-secondary); margin-left: 0.5rem;" id="dashboard-total-strength">Total Lifted: 0 kg</span>
+                                </div>
+                                <span style="font-size: 0.85rem; font-weight: 700; color: var(--accent-secondary);" id="dashboard-xp-text">0 / 100 kg to L2</span>
+                            </div>
+                            <div style="width: 100%; height: 10px; background: rgba(255, 255, 255, 0.05); border-radius: 5px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.05);">
+                                <div style="width: 0%; height: 100%; background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary)); border-radius: 5px; transition: width 0.8s ease;" id="dashboard-xp-bar"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Daily Check-In -->
+                    <div style="text-align:center; flex-shrink:0;">
+                        <button class="btn-checkin" id="btn-daily-checkin">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"></path></svg>
+                            Check In
+                        </button>
+                        <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.4rem;" id="checkin-streak-label">🔥 0 day streak</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+
+                    <div class="card-stat">
+                        <div class="stat-header">
+                            <span class="stat-title">Current Weight</span>
+                            <div class="stat-icon">
+                                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0-9 9 9 9 0 0 0 9 9 9 9 0 0 0 9-9 9 9 0 0 0-9-9zm0 16a7 7 0 1 1 0-14 7 7 0 0 1 0 14z"/></svg>
+                            </div>
+                        </div>
+                        <div class="stat-value" id="stat-current-weight">-- kg</div>
+                        <div class="stat-change" id="stat-weight-change">
+                            <span>Starting Tracker</span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-stat">
+                        <div class="stat-header">
+                            <span class="stat-title">Goal Progress</span>
+                            <div class="stat-icon cyan">
+                                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                            </div>
+                        </div>
+                        <div class="stat-value" id="stat-goal-progress">-- %</div>
+                        <div class="stat-change neutral" id="stat-target-diff">
+                            Target: -- kg
+                        </div>
+                    </div>
+
+                    <div class="card-stat">
+                        <div class="stat-header">
+                            <span class="stat-title">Workout Streak</span>
+                            <div class="stat-icon success">
+                                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 23c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8zm0-14c-3.3 0-6 2.7-6 6s2.7 6 6 6 6-2.7 6-6-2.7-6-6-6zM12 3a9.9 9.9 0 0 0-6 2.1V3H4v6h6V7H6.9A8 8 0 0 1 20 15h2c0-5.5-4.5-10-10-10V3z"/></svg>
+                            </div>
+                        </div>
+                        <div class="stat-value" id="stat-workout-streak">0 Days</div>
+                        <div class="stat-change up">
+                            <span>Keep pushing!</span>
+                        </div>
+                    </div>
+
+                    <div class="card-stat">
+                        <div class="stat-header">
+                            <span class="stat-title">Log Entries</span>
+                            <div class="stat-icon">
+                                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                            </div>
+                        </div>
+                        <div class="stat-value" id="stat-log-count">0</div>
+                        <div class="stat-change neutral">
+                            <span>Total logs tracked</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-grid">
+                    <!-- Progress Chart -->
+                    <div class="card-visual">
+                        <div class="card-header">
+                            <h2 class="card-title">Weight Trends</h2>
+                            <select id="chart-filter-select">
+                                <option value="7">Last 7 Days</option>
+                                <option value="30" selected>Last 30 Days</option>
+                                <option value="all">All-Time</option>
+                            </select>
+                        </div>
+                        <div style="position: relative; width: 100%; height: 300px;">
+                            <canvas id="weightOverviewChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Side widget: Recent Workouts & Motivational Quotes -->
+                    <div class="card-visual" style="min-height: auto; justify-content: flex-start; gap: 1.5rem;">
+                        <div>
+                            <h2 class="card-title" style="margin-bottom: 1rem;">Today's Focus</h2>
+                            <div id="workout-snippet-list">
+                                <p style="color: var(--text-muted);">No workouts logged today yet.</p>
+                            </div>
+                        </div>
+                        <div style="margin-top: auto; border-top: 1px solid var(--glass-border); padding-top: 1.5rem;">
+                            <h3 style="font-size: 0.9rem; font-weight: 700; text-transform: uppercase; color: var(--accent-primary); margin-bottom: 0.5rem;">Daily Quote</h3>
+                            <p id="motivational-quote" style="font-style: italic; color: var(--text-secondary); font-size: 0.95rem;">"The only bad workout is the one that didn't happen."</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 2: WEIGHT TRACKER -->
+            <section id="view-weight" class="app-view">
+                <div class="content-grid" style="grid-template-columns: 1.2fr 1.8fr;">
+                    <!-- Track/Edit Weight Form -->
+                    <div class="card-visual" style="min-height: auto;">
+                        <h2 class="card-title" style="margin-bottom: 1.5rem;">Log Body Weight</h2>
+                        <form id="weight-log-form">
+                            <div class="form-group" style="margin-bottom: 1.25rem;">
+                                <label for="weight-input">Weight (kg)</label>
+                                <input type="number" id="weight-input" step="0.1" min="1" max="500" required placeholder="e.g. 78.5">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 1.25rem;">
+                                <label for="weight-target-input">Target Weight Goal (kg)</label>
+                                <input type="number" id="weight-target-input" step="0.1" min="1" max="500" placeholder="e.g. 75.0">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 1.5rem;">
+                                <label for="weight-date">Date</label>
+                                <input type="date" id="weight-date" required>
+                            </div>
+                            <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">Save Entry</button>
+                        </form>
+                    </div>
+
+                    <!-- Weight History List -->
+                    <div class="card-visual" style="min-height: auto;">
+                        <h2 class="card-title">Weight Log History</h2>
+                        <div class="logs-table-wrapper">
+                            <table class="logs-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Weight</th>
+                                        <th>Difference</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="weight-history-tbody">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 3: WORKOUT LOG -->
+            <section id="view-workouts" class="app-view">
+                <div class="content-grid" style="grid-template-columns: 1.2fr 1.8fr;">
+                    <!-- Log Workout Form -->
+                    <div class="card-visual" style="min-height: auto;">
+                        <h2 class="card-title" style="margin-bottom: 1.5rem;">Log Workout Session</h2>
+                        <form id="workout-log-form">
+                            <div class="form-group" style="margin-bottom: 1.25rem;">
+                                <label for="workout-name">Workout/Exercise Name</label>
+                                <input type="text" id="workout-name" required placeholder="e.g. Bench Press, Squat, Running">
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="workout-sets">Sets</label>
+                                    <input type="number" id="workout-sets" min="1" placeholder="e.g. 4">
+                                </div>
+                                <div class="form-group">
+                                    <label for="workout-reps">Reps / Duration</label>
+                                    <input type="text" id="workout-reps" placeholder="e.g. 10 or 30m">
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 1.25rem;">
+                                <label for="workout-load">Load / Weight (kg or lbs)</label>
+                                <input type="text" id="workout-load" placeholder="e.g. 80kg or Bodyweight">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 1.5rem;">
+                                <label for="workout-date-input">Date</label>
+                                <input type="date" id="workout-date-input" required>
+                            </div>
+                            <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">Log Workout</button>
+                        </form>
+                    </div>
+
+                    <!-- Workout Sessions list -->
+                    <div class="card-visual" style="min-height: auto;">
+                        <h2 class="card-title">Completed Workouts</h2>
+                        <div class="logs-table-wrapper">
+                            <table class="logs-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Exercise</th>
+                                        <th>Sets × Reps</th>
+                                        <th>Load</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="workout-history-tbody">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 4: FITNESS TOOLS -->
+            <section id="view-tools" class="app-view">
+                <div class="content-grid" style="grid-template-columns: 1fr 1fr;">
+                    <!-- BMI Calculator -->
+                    <div class="card-visual" style="min-height: auto;">
+                        <h2 class="card-title" style="margin-bottom: 1.5rem;">BMI Calculator</h2>
+                        <div class="form-group" style="margin-bottom: 1.25rem;">
+                            <label for="bmi-height">Height (cm)</label>
+                            <input type="number" id="bmi-height" min="50" max="250" placeholder="e.g. 175">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1.5rem;">
+                            <label for="bmi-weight">Weight (kg)</label>
+                            <input type="number" id="bmi-weight" min="10" max="300" placeholder="e.g. 70">
+                        </div>
+                        <button class="btn-primary" id="btn-calc-bmi" style="width: 100%; justify-content: center;">Calculate BMI</button>
+                        
+                        <div class="bmi-result-card" id="bmi-result-card" style="display: none;">
+                            <div>Your BMI is</div>
+                            <div class="bmi-value" id="bmi-value">--</div>
+                            <div id="bmi-category" style="font-weight: 700;">Normal</div>
+                        </div>
+                    </div>
+
+                    <!-- Calorie Intake Estimator -->
+                    <div class="card-visual" style="min-height: auto;">
+                        <h2 class="card-title" style="margin-bottom: 1.5rem;">Daily Calorie Estimator</h2>
+                        <div class="form-group" style="margin-bottom: 1.25rem;">
+                            <label for="calorie-age">Age</label>
+                            <input type="number" id="calorie-age" min="10" max="100" placeholder="e.g. 25">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1.25rem;">
+                            <label for="calorie-gender">Gender</label>
+                            <select id="calorie-gender">
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1.25rem;">
+                            <label for="calorie-activity">Activity Level</label>
+                            <select id="calorie-activity">
+                                <option value="1.2">Sedentary (Little or no exercise)</option>
+                                <option value="1.375">Lightly Active (Light exercise 1-3 days/week)</option>
+                                <option value="1.55">Moderately Active (Moderate exercise 3-5 days/week)</option>
+                                <option value="1.725">Very Active (Hard exercise 6-7 days/week)</option>
+                            </select>
+                        </div>
+                        <button class="btn-primary" id="btn-calc-calories" style="width: 100%; justify-content: center;">Estimate Calories</button>
+
+                        <div class="bmi-result-card" id="calorie-result-card" style="display: none; margin-top: 1rem;">
+                            <div>Estimated Maintenance Calories</div>
+                            <div class="bmi-value" id="calorie-val">--</div>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary);">kcal/day to maintain weight</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 5: WORKOUT PLANS -->
+            <section id="view-plans" class="app-view">
+                <div class="content-grid" style="grid-template-columns: 1fr 1.2fr;">
+                    <!-- Plans List & Actions -->
+                    <div class="card-visual" style="min-height: auto; justify-content: flex-start;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                            <h2 class="card-title">My Workout Roster</h2>
+                            <button class="btn-primary" id="btn-show-plan-creator" style="padding: 0.5rem 1rem; font-size: 0.9rem;">+ Create Plan</button>
+                        </div>
+                        <div id="plans-roster-list" style="display: flex; flex-direction: column; gap: 1rem;">
+                            <!-- Active and pre-made plans dynamically generated -->
+                        </div>
+                    </div>
+
+                    <!-- Plan Editor / Details Container -->
+                    <div class="card-visual" style="min-height: auto; justify-content: flex-start;" id="plan-editor-card">
+                        <div id="plan-editor-placeholder">
+                            <h2 class="card-title" style="margin-bottom: 1rem;">Routine Details</h2>
+                            <p style="color: var(--text-muted);">Select a workout plan from the list to view structure, or create a customized plan from scratch.</p>
+                        </div>
+
+                        <!-- Active Edit/Create Form (Hidden initially) -->
+                        <div id="plan-editor-form-wrapper" style="display: none; width: 100%;">
+                            <h2 class="card-title" id="plan-editor-title" style="margin-bottom: 1.5rem;">Create Custom Routine</h2>
+                            <form id="custom-plan-form">
+                                <div class="form-group" style="margin-bottom: 1.25rem;">
+                                    <label for="plan-name-input">Routine Name</label>
+                                    <input type="text" id="plan-name-input" required placeholder="e.g. 3-Day Push/Pull/Legs">
+                                </div>
+                                
+                                <div style="margin-bottom: 1.25rem;">
+                                    <label style="display: block; margin-bottom: 0.5rem;">Training Days & Split</label>
+                                    <div id="editor-days-container" style="display: flex; flex-direction: column; gap: 1rem; max-height: 320px; overflow-y: auto; padding-right: 5px;">
+                                        <!-- Dynamic days will be added here -->
+                                    </div>
+                                    <button type="button" class="btn-secondary" id="btn-editor-add-day" style="width: 100%; margin-top: 0.75rem; padding: 0.5rem;">+ Add Training Day</button>
+                                </div>
+
+                                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                                    <button type="submit" class="btn-primary" style="flex: 1; justify-content: center;">Save Routine</button>
+                                    <button type="button" class="btn-secondary" id="btn-cancel-plan-edit" style="flex: 1; justify-content: center;">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- View plan detail structure (Hidden initially) -->
+                        <div id="plan-viewer-wrapper" style="display: none; width: 100%;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
+                                <div>
+                                    <h2 class="card-title" id="plan-view-name">Push/Pull/Legs</h2>
+                                    <span style="font-size: 0.85rem; color: var(--accent-primary); font-weight: 700;" id="plan-view-tag">3-Day Routine</span>
+                                </div>
+                                <button class="btn-delete" id="btn-delete-current-plan" style="color: var(--accent-danger);">Delete Plan</button>
+                            </div>
+                            <div id="plan-view-days-list" style="display: flex; flex-direction: column; gap: 1rem; max-height: 400px; overflow-y: auto; padding-right: 5px;">
+                                <!-- Day structures -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- GLOBAL MODAL: Log Weight Quick Action -->
+    <div class="modal-overlay" id="quick-log-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="card-title">Quick Log Weight</h3>
+                <button class="modal-close" id="modal-close-btn">&times;</button>
+            </div>
+            <form id="quick-log-form">
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                    <label for="quick-weight-input">Weight (kg)</label>
+                    <input type="number" id="quick-weight-input" step="0.1" min="1" max="500" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="quick-weight-date">Date</label>
+                    <input type="date" id="quick-weight-date" required>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">Save Entry</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Hidden file input for import -->
+    <input type="file" id="import-file-input" style="display: none;" accept=".json">
+
+    <!-- LEVEL UP OVERLAY -->
+    <div class="levelup-overlay" id="levelup-overlay">
+        <div class="levelup-box">
+            <div class="levelup-particles" id="levelup-particles"></div>
+            <div class="levelup-emoji">⚡</div>
+            <div class="levelup-label">LEVEL UP!</div>
+            <div class="levelup-badge" id="levelup-badge-num">L2</div>
+            <div class="levelup-rank" id="levelup-rank-name">Iron Lifter</div>
+            <p class="levelup-subtitle">You've smashed another <strong>100 kg</strong> milestone!</p>
+            <button class="btn-primary" id="btn-levelup-close" style="margin-top:1.5rem; justify-content: center; width: 100%;">Keep Grinding 💪</button>
+        </div>
+    </div>
+
+    <!-- Floating XP Indicator template (cloned via JS) -->
+    <div class="xp-float-template" id="xp-float-template" style="display:none;">+LVL UP</div>
+
+    <!-- Personal Records Modal -->
+    <div class="modal-overlay" id="pr-modal">
+        <div class="modal-content" style="max-width:560px;">
+            <div class="modal-header">
+                <h3 class="card-title">🏆 Personal Records</h3>
+                <button class="modal-close" id="pr-modal-close">&times;</button>
+            </div>
+            <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1rem;">Best weight ever logged per exercise. Auto-updates when you beat a record.</p>
+            <div id="pr-list" style="display:flex; flex-direction:column; gap:0.6rem; max-height:360px; overflow-y:auto;">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
