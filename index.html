@@ -88,6 +88,16 @@
                             Workout Log
                         </button>
                     </li>
+                    <li class="menu-item" data-view="nutrition">
+                        <button>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M7 2v6a2 2 0 0 0 2 2 2 2 0 0 0 2-2V2"></path>
+                                <path d="M9 10v12"></path>
+                                <path d="M17 2c-1 2-1 4-1 6a3 3 0 0 0 3 3v11"></path>
+                            </svg>
+                            Nutrition
+                        </button>
+                    </li>
                     <li class="menu-item" data-view="plans">
                         <button>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -152,6 +162,14 @@
                     <line x1="14" y1="12" x2="14.01" y2="12"></line>
                 </svg>
                 <span>Workouts</span>
+            </button>
+            <button class="mobile-tab-item" data-view="nutrition">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M7 2v6a2 2 0 0 0 2 2 2 2 0 0 0 2-2V2"></path>
+                    <path d="M9 10v12"></path>
+                    <path d="M17 2c-1 2-1 4-1 6a3 3 0 0 0 3 3v11"></path>
+                </svg>
+                <span>Food</span>
             </button>
             <button class="mobile-tab-item" data-view="plans">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -231,6 +249,17 @@
                     </div>
                 </div>
 
+
+                <!-- Achievements -->
+                <div class="card-visual achievements-card" style="min-height: auto; margin-bottom: 2rem;">
+                    <div class="card-header" style="margin-bottom: 1.25rem;">
+                        <h2 class="card-title">Achievements</h2>
+                        <span class="achievements-progress" id="achievements-progress">0 / 0 unlocked</span>
+                    </div>
+                    <div class="badges-grid" id="badges-grid">
+                        <!-- Dynamic badge cards -->
+                    </div>
+                </div>
 
                 <div class="dashboard-grid">
 
@@ -420,6 +449,122 @@
                 </div>
             </section>
 
+            <!-- VIEW: NUTRITION TRACKER -->
+            <section id="view-nutrition" class="app-view">
+                <!-- Today's Summary -->
+                <div class="card-visual nutrition-summary-card" style="min-height: auto; margin-bottom: 1.5rem;">
+                    <div class="card-header" style="margin-bottom: 1.25rem;">
+                        <h2 class="card-title">Today's Summary</h2>
+                        <button class="btn-secondary" id="btn-edit-nutrition-goals" style="padding: 0.5rem 1rem; font-size: 0.8rem;">Edit Goals</button>
+                    </div>
+                    <div class="nutrition-bars">
+                        <div class="nutrition-bar-row">
+                            <div class="nutrition-bar-label">
+                                <span>Calories</span>
+                                <span id="nutrition-cal-text">0 / 2200 kcal</span>
+                            </div>
+                            <div class="nutrition-bar-track">
+                                <div class="nutrition-bar-fill cal" id="nutrition-cal-bar"></div>
+                            </div>
+                        </div>
+                        <div class="nutrition-bar-row">
+                            <div class="nutrition-bar-label">
+                                <span>Protein</span>
+                                <span id="nutrition-protein-text">0 / 150 g</span>
+                            </div>
+                            <div class="nutrition-bar-track">
+                                <div class="nutrition-bar-fill protein" id="nutrition-protein-bar"></div>
+                            </div>
+                        </div>
+                        <div class="nutrition-bar-row">
+                            <div class="nutrition-bar-label">
+                                <span>Carbs</span>
+                                <span id="nutrition-carbs-text">0 / 220 g</span>
+                            </div>
+                            <div class="nutrition-bar-track">
+                                <div class="nutrition-bar-fill carbs" id="nutrition-carbs-bar"></div>
+                            </div>
+                        </div>
+                        <div class="nutrition-bar-row">
+                            <div class="nutrition-bar-label">
+                                <span>Fat</span>
+                                <span id="nutrition-fat-text">0 / 70 g</span>
+                            </div>
+                            <div class="nutrition-bar-track">
+                                <div class="nutrition-bar-fill fat" id="nutrition-fat-bar"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-grid" style="grid-template-columns: 1.2fr 1.8fr;">
+                    <!-- Log Food Form -->
+                    <div class="card-visual" style="min-height: auto;">
+                        <h2 class="card-title" style="margin-bottom: 1.5rem;">Log Food</h2>
+                        <form id="nutrition-log-form">
+                            <div class="form-group" style="margin-bottom: 1.25rem;">
+                                <label for="nutrition-food-name">Food / Meal Name</label>
+                                <input type="text" id="nutrition-food-name" required placeholder="e.g. Grilled Chicken & Rice">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 1.25rem;">
+                                <label for="nutrition-meal-type">Meal</label>
+                                <select id="nutrition-meal-type">
+                                    <option value="Breakfast">Breakfast</option>
+                                    <option value="Lunch">Lunch</option>
+                                    <option value="Dinner">Dinner</option>
+                                    <option value="Snack">Snack</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 1.25rem;">
+                                <label for="nutrition-calories">Calories (kcal)</label>
+                                <input type="number" id="nutrition-calories" min="0" required placeholder="e.g. 450">
+                            </div>
+                            <div class="form-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+                                <div class="form-group">
+                                    <label for="nutrition-protein">Protein (g)</label>
+                                    <input type="number" id="nutrition-protein" min="0" placeholder="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="nutrition-carbs">Carbs (g)</label>
+                                    <input type="number" id="nutrition-carbs" min="0" placeholder="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="nutrition-fat">Fat (g)</label>
+                                    <input type="number" id="nutrition-fat" min="0" placeholder="0">
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin: 1.25rem 0 1.5rem;">
+                                <label for="nutrition-date">Date</label>
+                                <input type="date" id="nutrition-date" required>
+                            </div>
+                            <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">Log Food</button>
+                        </form>
+                    </div>
+
+                    <!-- Food Log History -->
+                    <div class="card-visual" style="min-height: auto;">
+                        <h2 class="card-title">Food Log</h2>
+                        <div class="logs-table-wrapper">
+                            <table class="logs-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Meal</th>
+                                        <th>Food</th>
+                                        <th>Kcal</th>
+                                        <th>P / C / F</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="nutrition-history-tbody">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- VIEW 4: FITNESS TOOLS -->
             <section id="view-tools" class="app-view">
                 <div class="content-grid" style="grid-template-columns: 1fr 1fr;">
@@ -472,6 +617,37 @@
                             <div>Estimated Maintenance Calories</div>
                             <div class="bmi-value" id="calorie-val">--</div>
                             <div style="font-size: 0.85rem; color: var(--text-secondary);">kcal/day to maintain weight</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Exercise Library -->
+                <div class="card-visual" style="min-height: auto; margin-top: 1.5rem;">
+                    <h2 class="card-title" style="margin-bottom: 0.35rem;">Exercise Library</h2>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.25rem;">Pick an exercise to see proper form, step-by-step instructions, and tips to get more out of it.</p>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="exercise-select">Choose an exercise</label>
+                        <select id="exercise-select">
+                            <option value="">— Select an exercise —</option>
+                        </select>
+                    </div>
+
+                    <div id="exercise-detail" class="exercise-detail" style="display: none;">
+                        <div class="exercise-detail-header">
+                            <h3 id="exercise-detail-name">—</h3>
+                            <span class="exercise-tag" id="exercise-detail-category">—</span>
+                        </div>
+
+                        <div class="exercise-detail-cols">
+                            <div>
+                                <h4>How to do it</h4>
+                                <ol id="exercise-detail-steps"></ol>
+                            </div>
+                            <div>
+                                <h4>Tips &amp; tricks</h4>
+                                <ul id="exercise-detail-tips"></ul>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -558,6 +734,37 @@
                     <input type="date" id="quick-weight-date" required>
                 </div>
                 <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">Save Entry</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- GLOBAL MODAL: Edit Nutrition Goals -->
+    <div class="modal-overlay" id="nutrition-goals-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="card-title">Edit Daily Goals</h3>
+                <button class="modal-close" id="nutrition-goals-modal-close">&times;</button>
+            </div>
+            <form id="nutrition-goals-form">
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                    <label for="goal-calories">Calories (kcal)</label>
+                    <input type="number" id="goal-calories" min="0" required>
+                </div>
+                <div class="form-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+                    <div class="form-group">
+                        <label for="goal-protein">Protein (g)</label>
+                        <input type="number" id="goal-protein" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="goal-carbs">Carbs (g)</label>
+                        <input type="number" id="goal-carbs" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="goal-fat">Fat (g)</label>
+                        <input type="number" id="goal-fat" min="0" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; margin-top: 1.5rem;">Save Goals</button>
             </form>
         </div>
     </div>

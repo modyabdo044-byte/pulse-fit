@@ -8,7 +8,9 @@ let state = {
     workoutLogs: [], // Array of { id, date, exercise, sets, reps, load }
     workoutPlans: [], // Array of { id, name, days: [ { name, exercises: [ { name, sets, reps } ] } ] }
     activePlanId: null,
-    lastKnownLevel: 1 // tracks level for level-up detection
+    lastKnownLevel: 1, // tracks level for level-up detection
+    nutritionLogs: [], // Array of { id, date, mealType, name, calories, protein, carbs, fat }
+    nutritionGoals: { calories: 2200, protein: 150, carbs: 220, fat: 70 }
 };
 
 // Brand-new usernames start with a clean slate — no fabricated weight/workout
@@ -78,6 +80,384 @@ const DEFAULT_PLANS = [
     }
 ];
 
+// =====================================================
+// EXERCISE LIBRARY — static reference data (not user data)
+// =====================================================
+const EXERCISE_LIBRARY = {
+    "Chest": [
+        {
+            name: "Barbell Bench Press",
+            steps: [
+                "Lie on the bench with your eyes roughly under the bar.",
+                "Grip the bar slightly wider than shoulder-width.",
+                "Unrack it and lower it slowly to your mid-chest.",
+                "Press back up until your arms are fully extended, without locking out aggressively."
+            ],
+            tips: [
+                "Keep your feet flat on the floor and drive them down for stability.",
+                "Squeeze your shoulder blades together before you unrack.",
+                "Control the descent — don't let the bar drop.",
+                "Use a spotter for heavy sets."
+            ]
+        },
+        {
+            name: "Push-Up",
+            steps: [
+                "Start in a plank with hands slightly wider than shoulders.",
+                "Keep your body in a straight line from head to heels.",
+                "Lower your chest toward the floor by bending your elbows.",
+                "Push back up to the starting position."
+            ],
+            tips: [
+                "Don't let your hips sag or pike upward.",
+                "Keep elbows at roughly a 45° angle from your torso, not flared straight out.",
+                "Fully extend your arms at the top without locking hard.",
+                "Elevate your feet on a box to increase difficulty."
+            ]
+        },
+        {
+            name: "Incline Dumbbell Press",
+            steps: [
+                "Set a bench to a 30–45° incline.",
+                "Hold a dumbbell in each hand at shoulder height, palms facing forward.",
+                "Press the dumbbells up until arms are extended.",
+                "Lower with control back to the starting position."
+            ],
+            tips: [
+                "A steeper incline shifts emphasis to the upper chest/shoulders.",
+                "Avoid banging the dumbbells together at the top — control the path.",
+                "Keep your wrists stacked directly over your elbows.",
+                "Don't flare your elbows all the way out to protect your shoulders."
+            ]
+        },
+        {
+            name: "Cable Fly",
+            steps: [
+                "Set both pulleys to chest height and grab a handle in each hand.",
+                "Step forward with a slight forward lean and soft bend in the elbows.",
+                "Bring your hands together in front of your chest in a hugging motion.",
+                "Slowly return to the starting position, feeling a stretch across the chest."
+            ],
+            tips: [
+                "Keep a consistent, slight bend in your elbows throughout.",
+                "Focus on squeezing the chest at the peak rather than just moving weight.",
+                "Don't let the weights slam at the bottom of the stack.",
+                "Adjust pulley height to target upper vs lower chest."
+            ]
+        }
+    ],
+    "Back": [
+        {
+            name: "Deadlift",
+            steps: [
+                "Stand with feet hip-width apart, bar over mid-foot.",
+                "Hinge at the hips and bend knees to grip the bar just outside your legs.",
+                "Flatten your back, brace your core, and lift by driving through the floor.",
+                "Stand tall at the top, then lower the bar back down with control."
+            ],
+            tips: [
+                "Keep the bar close to your body throughout the whole lift.",
+                "Don't round your lower back — brace like you're about to be punched in the stomach.",
+                "Drive through your heels/mid-foot, not your toes.",
+                "Start light to groove the pattern before adding weight."
+            ]
+        },
+        {
+            name: "Pull-Up",
+            steps: [
+                "Hang from a bar with hands slightly wider than shoulder-width, palms facing away.",
+                "Pull your body up by driving your elbows down and back.",
+                "Get your chin over the bar.",
+                "Lower back down under control to a full hang."
+            ],
+            tips: [
+                "Avoid excessive kipping/swinging if you're training strict form.",
+                "Think 'pull your chest to the bar' rather than just your chin.",
+                "Use a resistance band under your feet for assistance if needed.",
+                "Fully extend your arms at the bottom for full range of motion."
+            ]
+        },
+        {
+            name: "Barbell Row",
+            steps: [
+                "Hinge at the hips with a flat back, torso roughly 45° to the floor.",
+                "Grip the bar just outside your legs.",
+                "Pull the bar toward your lower ribcage, driving elbows back.",
+                "Lower it back down with control."
+            ],
+            tips: [
+                "Keep your core braced — don't let your torso bounce to generate momentum.",
+                "Squeeze your shoulder blades together at the top of the row.",
+                "Keep your neck in a neutral position, not craned up.",
+                "Choose a weight you can control for the full range of motion."
+            ]
+        },
+        {
+            name: "Lat Pulldown",
+            steps: [
+                "Sit down and grip the bar wider than shoulder-width.",
+                "Lean back slightly and pull the bar down to your upper chest.",
+                "Squeeze your lats at the bottom of the movement.",
+                "Slowly let the bar rise back up under control."
+            ],
+            tips: [
+                "Avoid yanking the bar down using body momentum.",
+                "Think about pulling with your elbows, not just your hands.",
+                "Keep your chest up rather than rounding forward.",
+                "Don't lean back excessively — a slight lean is enough."
+            ]
+        }
+    ],
+    "Legs": [
+        {
+            name: "Barbell Squat",
+            steps: [
+                "Set the bar on your upper traps (or a bit lower for low-bar).",
+                "Stand with feet shoulder-width apart, toes slightly turned out.",
+                "Break at the hips and knees together, descending until thighs are at least parallel.",
+                "Drive back up through your whole foot to standing."
+            ],
+            tips: [
+                "Keep your chest up and core braced throughout.",
+                "Track your knees in line with your toes — avoid caving inward.",
+                "Go only as deep as your mobility allows with good form.",
+                "Use safety bars/pins when squatting heavy alone."
+            ]
+        },
+        {
+            name: "Romanian Deadlift",
+            steps: [
+                "Hold a barbell or dumbbells in front of your thighs.",
+                "With a slight knee bend, hinge at the hips and push them backward.",
+                "Lower the weight along your legs until you feel a stretch in your hamstrings.",
+                "Drive your hips forward to return to standing."
+            ],
+            tips: [
+                "Keep the bar/dumbbells close to your legs the whole time.",
+                "Keep your back flat — this is a hip hinge, not a squat.",
+                "Stop the descent once your hamstring flexibility limit is reached.",
+                "Focus on the hamstring stretch and glute squeeze, not just moving weight."
+            ]
+        },
+        {
+            name: "Walking Lunge",
+            steps: [
+                "Stand tall, holding dumbbells at your sides or a bar on your back.",
+                "Step forward into a lunge, lowering your back knee toward the floor.",
+                "Push through your front heel to bring your back foot forward into the next step.",
+                "Continue alternating legs as you move forward."
+            ],
+            tips: [
+                "Keep your torso upright rather than leaning forward.",
+                "Take a long enough step so your front knee doesn't shoot past your toes.",
+                "Control the descent instead of dropping into each rep.",
+                "Start bodyweight-only until the pattern feels stable."
+            ]
+        },
+        {
+            name: "Leg Press",
+            steps: [
+                "Sit in the machine with feet shoulder-width apart on the platform.",
+                "Release the safety and lower the platform by bending your knees toward your chest.",
+                "Press through your feet to extend your legs back out.",
+                "Stop just short of locking your knees out fully."
+            ],
+            tips: [
+                "Don't let your lower back round off the pad at the bottom.",
+                "Avoid locking your knees hard at the top of each rep.",
+                "Keep your feet flat — don't let heels lift off the platform.",
+                "Adjust foot position higher on the platform to emphasize glutes/hamstrings."
+            ]
+        }
+    ],
+    "Shoulders": [
+        {
+            name: "Overhead Press",
+            steps: [
+                "Hold a barbell at shoulder height with hands just outside shoulder-width.",
+                "Brace your core and glutes.",
+                "Press the bar straight overhead, moving your head slightly back to let it pass.",
+                "Lower back to the starting position with control."
+            ],
+            tips: [
+                "Avoid excessive lower-back arching — keep your ribs down.",
+                "Press in a straight line, not out and around.",
+                "Fully lock out your elbows at the top for a complete rep.",
+                "Start with lighter weight to master the bar path."
+            ]
+        },
+        {
+            name: "Lateral Raise",
+            steps: [
+                "Hold a dumbbell in each hand at your sides.",
+                "With a slight bend in your elbows, raise your arms out to the sides.",
+                "Lift until your arms are roughly parallel to the floor.",
+                "Lower back down with control."
+            ],
+            tips: [
+                "Avoid swinging the weights using momentum.",
+                "Lead with your elbows, not your hands.",
+                "Use lighter weight than you think — this is a small, isolation movement.",
+                "A very slight forward lean can help target the middle delt better."
+            ]
+        },
+        {
+            name: "Face Pull",
+            steps: [
+                "Set a cable at upper-chest to head height with a rope attachment.",
+                "Pull the rope toward your face, splitting it apart as it approaches.",
+                "Rotate your hands so your knuckles end up facing behind you.",
+                "Slowly return to the starting position."
+            ],
+            tips: [
+                "Keep your elbows high, roughly in line with your shoulders.",
+                "Focus on squeezing your rear delts and upper back at the end range.",
+                "Use a light-to-moderate weight — this is about control, not load.",
+                "Great as a warm-up or shoulder-health accessory movement."
+            ]
+        },
+        {
+            name: "Arnold Press",
+            steps: [
+                "Sit holding dumbbells in front of your shoulders, palms facing you.",
+                "Press upward while rotating your palms to face forward.",
+                "Fully extend your arms overhead.",
+                "Reverse the rotation as you lower back to the start."
+            ],
+            tips: [
+                "Keep the movement smooth and controlled through the rotation.",
+                "Don't flare your elbows out too wide at the bottom.",
+                "Brace your core to avoid arching your lower back.",
+                "Use a weight that lets you control the rotation cleanly."
+            ]
+        }
+    ],
+    "Arms": [
+        {
+            name: "Barbell Curl",
+            steps: [
+                "Stand holding a barbell with an underhand grip, shoulder-width apart.",
+                "Keep your elbows pinned at your sides.",
+                "Curl the bar up toward your shoulders.",
+                "Lower back down slowly to full extension."
+            ],
+            tips: [
+                "Avoid swinging your hips or back to help lift the weight.",
+                "Keep your elbows still — they shouldn't drift forward.",
+                "Squeeze at the top rather than just reaching the position.",
+                "Control the lowering phase instead of dropping it."
+            ]
+        },
+        {
+            name: "Tricep Pushdown",
+            steps: [
+                "Stand facing a cable machine with a bar or rope attachment at chest height.",
+                "Keep your elbows tucked at your sides.",
+                "Push the attachment down until your arms are fully extended.",
+                "Let it rise back up under control without letting elbows flare."
+            ],
+            tips: [
+                "Keep your elbows fixed — only your forearms should move.",
+                "Avoid leaning your whole body into the movement.",
+                "Fully extend at the bottom to get the full triceps contraction.",
+                "Slow the return phase down for more time under tension."
+            ]
+        },
+        {
+            name: "Hammer Curl",
+            steps: [
+                "Hold a dumbbell in each hand with palms facing your torso (neutral grip).",
+                "Keep elbows pinned at your sides.",
+                "Curl the dumbbells up while keeping the neutral grip throughout.",
+                "Lower back down with control."
+            ],
+            tips: [
+                "Don't rotate your wrists — that turns it into a regular curl.",
+                "Keep your shoulders still; avoid using momentum from your upper back.",
+                "This variation also builds forearm and grip strength.",
+                "Alternate arms or do both together, whichever keeps form cleaner."
+            ]
+        },
+        {
+            name: "Skull Crusher",
+            steps: [
+                "Lie on a bench holding a barbell or EZ-bar with arms extended over your chest.",
+                "Bend only at the elbows, lowering the bar toward your forehead.",
+                "Keep your upper arms stationary and pointed at the ceiling.",
+                "Extend your elbows to press the bar back to the start."
+            ],
+            tips: [
+                "Keep your elbows from flaring outward as you lower the weight.",
+                "Use a spotter or lighter weight until you're confident with the path.",
+                "Lower toward your forehead or just behind your head, not your throat.",
+                "Move slowly — this exercise punishes sloppy control."
+            ]
+        }
+    ],
+    "Core": [
+        {
+            name: "Plank",
+            steps: [
+                "Get into a forearm-supported plank position, elbows under shoulders.",
+                "Keep your body in a straight line from head to heels.",
+                "Brace your core and squeeze your glutes.",
+                "Hold the position for the desired time."
+            ],
+            tips: [
+                "Don't let your hips sag toward the floor or pike up high.",
+                "Breathe steadily — don't hold your breath.",
+                "Keep your neck neutral, looking at the floor, not straight ahead.",
+                "Quality over duration — a shorter, tighter plank beats a long sloppy one."
+            ]
+        },
+        {
+            name: "Hanging Leg Raise",
+            steps: [
+                "Hang from a pull-up bar with arms fully extended.",
+                "Keep a slight bend in your knees or legs straight for more difficulty.",
+                "Raise your legs up until roughly parallel to the floor (or higher).",
+                "Lower back down with control, avoiding a swing."
+            ],
+            tips: [
+                "Avoid using momentum from swinging your whole body.",
+                "Focus on curling your pelvis under at the top for full ab engagement.",
+                "Bend your knees to make it easier while you build strength.",
+                "Control the negative rather than letting your legs drop."
+            ]
+        },
+        {
+            name: "Cable Woodchopper",
+            steps: [
+                "Set a cable to high position and grab the handle with both hands.",
+                "Stand side-on to the machine, feet shoulder-width apart.",
+                "Rotate your torso and pull the handle diagonally down across your body.",
+                "Return with control to the starting position."
+            ],
+            tips: [
+                "Rotate through your torso and hips, not just your arms.",
+                "Keep a slight bend in your knees to allow hip rotation.",
+                "Perform equal sets on both sides.",
+                "Start with lighter weight to nail the rotational pattern first."
+            ]
+        },
+        {
+            name: "Russian Twist",
+            steps: [
+                "Sit on the floor with knees bent, leaning back slightly to engage your core.",
+                "Hold a weight or medicine ball with both hands.",
+                "Rotate your torso to touch the weight to the floor on one side.",
+                "Rotate to the other side and repeat."
+            ],
+            tips: [
+                "Keep your chest up rather than rounding your back.",
+                "Move slowly with control rather than swinging fast for reps.",
+                "Lifting your feet off the floor increases difficulty.",
+                "Focus on rotating from your torso, not just swinging your arms."
+            ]
+        }
+    ]
+};
+
 // Initialize chart reference
 let weightChart = null;
 let editorDaysList = []; // Temp holder for days during custom plan creation
@@ -92,6 +472,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('weight-date').value = today;
     document.getElementById('workout-date-input').value = today;
     document.getElementById('quick-weight-date').value = today;
+    document.getElementById('nutrition-date').value = today;
 });
 
 // =====================================================
@@ -167,6 +548,8 @@ function switchUser() {
     state.weightGoal = 75.0;
     state.activePlanId = null;
     state.lastKnownLevel = 1;
+    state.nutritionLogs = [];
+    state.nutritionGoals = { calories: 2200, protein: 150, carbs: 220, fat: 70 };
 
     document.getElementById('main-app').style.display = 'none';
     document.getElementById('username-screen').style.display = 'flex';
@@ -183,17 +566,23 @@ function loadData() {
     const savedWorkouts = localStorage.getItem(namespacedKey('workouts'));
     const savedPlans = localStorage.getItem(namespacedKey('plans'));
     const savedLevel = localStorage.getItem(namespacedKey('lastKnownLevel'));
+    const savedNutritionLogs = localStorage.getItem(namespacedKey('nutritionLogs'));
+    const savedNutritionGoals = localStorage.getItem(namespacedKey('nutritionGoals'));
 
     state.weightLogs = savedWeight ? JSON.parse(savedWeight) : [...DEFAULT_WEIGHT_LOGS];
     state.weightGoal = savedGoal ? parseFloat(savedGoal) : 75.0;
     state.workoutLogs = savedWorkouts ? JSON.parse(savedWorkouts) : [...DEFAULT_WORKOUTS];
     state.workoutPlans = savedPlans ? JSON.parse(savedPlans) : DEFAULT_PLANS.map(p => ({ ...p }));
     state.lastKnownLevel = savedLevel ? parseInt(savedLevel) : 1;
+    state.nutritionLogs = savedNutritionLogs ? JSON.parse(savedNutritionLogs) : [];
+    state.nutritionGoals = savedNutritionGoals ? JSON.parse(savedNutritionGoals) : { calories: 2200, protein: 150, carbs: 220, fat: 70 };
 
     if (!savedWeight) saveToLocalStorage('weightLogs');
     if (!savedGoal) localStorage.setItem(namespacedKey('weightGoal'), state.weightGoal);
     if (!savedWorkouts) saveToLocalStorage('workouts');
     if (!savedPlans) saveToLocalStorage('plans');
+    if (!savedNutritionLogs) saveToLocalStorage('nutritionLogs');
+    if (!savedNutritionGoals) saveToLocalStorage('nutritionGoals');
 }
 
 // Save helpers — all keys namespaced to the active username
@@ -207,6 +596,10 @@ function saveToLocalStorage(key) {
         localStorage.setItem(namespacedKey('plans'), JSON.stringify(state.workoutPlans));
     } else if (key === 'level') {
         localStorage.setItem(namespacedKey('lastKnownLevel'), state.lastKnownLevel);
+    } else if (key === 'nutritionLogs') {
+        localStorage.setItem(namespacedKey('nutritionLogs'), JSON.stringify(state.nutritionLogs));
+    } else if (key === 'nutritionGoals') {
+        localStorage.setItem(namespacedKey('nutritionGoals'), JSON.stringify(state.nutritionGoals));
     }
 }
 
@@ -219,11 +612,113 @@ function renderAll() {
     renderWorkoutSnippet();
     renderPlansRoster();
     renderLevel();
+    renderNutrition();
+    renderBadges();
 }
 
 // =====================================================
-// GAMIFICATION — Strength Total / Level / Rank System
+// ACHIEVEMENT BADGES
 // =====================================================
+const BADGES = [
+    { id: 'first_workout', icon: '🏋️', name: 'First Rep', description: 'Log your first workout session.',
+      check: ctx => ctx.workoutCount >= 1 },
+    { id: 'workouts_10', icon: '💪', name: 'Getting Started', description: 'Log 10 workout sessions.',
+      check: ctx => ctx.workoutCount >= 10 },
+    { id: 'workouts_50', icon: '🔥', name: 'Iron Habit', description: 'Log 50 workout sessions.',
+      check: ctx => ctx.workoutCount >= 50 },
+    { id: 'workouts_100', icon: '🏆', name: 'Century Club', description: 'Log 100 workout sessions.',
+      check: ctx => ctx.workoutCount >= 100 },
+
+    { id: 'first_weight', icon: '⚖️', name: 'First Weigh-In', description: 'Log your first body weight entry.',
+      check: ctx => ctx.weightCount >= 1 },
+    { id: 'weight_10', icon: '📊', name: 'Consistent Tracker', description: 'Log 10 body weight entries.',
+      check: ctx => ctx.weightCount >= 10 },
+    { id: 'weight_25', icon: '📈', name: 'Data Devotee', description: 'Log 25 body weight entries.',
+      check: ctx => ctx.weightCount >= 25 },
+    { id: 'goal_reached', icon: '🎯', name: 'Goal Getter', description: 'Reach your target weight goal.',
+      check: ctx => ctx.goalProgressPct >= 100 },
+
+    { id: 'streak_3', icon: '🔥', name: '3-Day Streak', description: 'Work out 3 days in a row.',
+      check: ctx => ctx.streak >= 3 },
+    { id: 'streak_7', icon: '🔥', name: 'Week Warrior', description: 'Work out 7 days in a row.',
+      check: ctx => ctx.streak >= 7 },
+    { id: 'streak_30', icon: '🔥', name: 'Unstoppable', description: 'Work out 30 days in a row.',
+      check: ctx => ctx.streak >= 30 },
+
+    { id: 'first_meal', icon: '🍎', name: 'First Meal Logged', description: 'Log your first meal in the Nutrition Tracker.',
+      check: ctx => ctx.nutritionCount >= 1 },
+    { id: 'meals_25', icon: '🥗', name: 'Nutrition Nerd', description: 'Log 25 meals in the Nutrition Tracker.',
+      check: ctx => ctx.nutritionCount >= 25 },
+
+    { id: 'plan_maker', icon: '📋', name: 'Plan Maker', description: 'Create your own custom workout plan.',
+      check: ctx => ctx.customPlanCount >= 1 },
+
+    { id: 'level_3', icon: '🥈', name: 'Iron Lifter', description: 'Reach Level 3.',
+      check: ctx => ctx.level >= 3 },
+    { id: 'level_6', icon: '🥇', name: 'Gym Warrior', description: 'Reach Level 6.',
+      check: ctx => ctx.level >= 6 },
+    { id: 'level_10', icon: '👑', name: 'Elite Athlete', description: 'Reach Level 10.',
+      check: ctx => ctx.level >= 10 }
+];
+
+// Build the context object badge criteria are evaluated against
+function computeBadgeContext() {
+    const { level } = getLevelData(computeTotalStrength());
+    const sortedWeights = [...state.weightLogs].sort((a, b) => new Date(a.date) - new Date(b.date));
+    let goalProgressPct = 0;
+    if (sortedWeights.length > 0) {
+        const startWeight = sortedWeights[0].weight;
+        const latest = sortedWeights[sortedWeights.length - 1].weight;
+        const target = state.weightGoal;
+        if (startWeight === target) {
+            goalProgressPct = 100;
+        } else {
+            const totalChangeNeeded = startWeight - target;
+            const achievedChange = startWeight - latest;
+            goalProgressPct = Math.max(0, Math.min(100, (achievedChange / totalChangeNeeded) * 100));
+        }
+    }
+
+    return {
+        workoutCount: state.workoutLogs.length,
+        weightCount: state.weightLogs.length,
+        nutritionCount: state.nutritionLogs.length,
+        streak: computeWorkoutStreak(),
+        level,
+        goalProgressPct,
+        customPlanCount: Math.max(0, state.workoutPlans.length - DEFAULT_PLANS.length)
+    };
+}
+
+function renderBadges() {
+    const grid = document.getElementById('badges-grid');
+    const progressEl = document.getElementById('achievements-progress');
+    if (!grid) return;
+
+    const ctx = computeBadgeContext();
+    let unlockedCount = 0;
+
+    grid.innerHTML = BADGES.map(badge => {
+        const unlocked = badge.check(ctx);
+        if (unlocked) unlockedCount++;
+        return `
+            <div class="badge-card ${unlocked ? 'unlocked' : 'locked'}" title="${escapeHtmlAttr(badge.description)}">
+                <div class="badge-icon">${unlocked ? badge.icon : '🔒'}</div>
+                <div class="badge-name">${badge.name}</div>
+                <div class="badge-desc">${badge.description}</div>
+            </div>
+        `;
+    }).join('');
+
+    if (progressEl) progressEl.textContent = `${unlockedCount} / ${BADGES.length} unlocked`;
+}
+
+// Minimal attribute-safe escaping for the title tooltip
+function escapeHtmlAttr(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+}
+
+
 
 // Parse numeric kg value from a string like '80kg', '80 kg', '80', 'Bodyweight'
 function parseLoad(loadStr) {
@@ -233,6 +728,10 @@ function parseLoad(loadStr) {
     const match = lower.match(/([\d.]+)/);
     return match ? parseFloat(match[1]) : 0;
 }
+
+// =====================================================
+// GAMIFICATION — Strength Total / Level / Rank System
+// =====================================================
 
 // Sum up the maximum load ever logged for each unique exercise
 function computeTotalStrength() {
@@ -246,6 +745,34 @@ function computeTotalStrength() {
         }
     });
     return Object.values(maxPerExercise).reduce((sum, v) => sum + v, 0);
+}
+
+// Consecutive-day workout streak, counting back from today (or yesterday, if
+// today has no log yet but yesterday's chain is still unbroken)
+function computeWorkoutStreak() {
+    const workoutDates = [...new Set(state.workoutLogs.map(w => w.date))].sort((a, b) => new Date(b) - new Date(a));
+    let streak = 0;
+    if (workoutDates.length > 0) {
+        const todayStr = new Date().toISOString().split('T')[0];
+        let expectedDate = new Date(workoutDates[0]);
+        const timeDiff = Math.abs(new Date(todayStr) - expectedDate);
+        const diffDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+
+        if (diffDays <= 1) {
+            streak = 1;
+            for (let i = 1; i < workoutDates.length; i++) {
+                const nextDate = new Date(workoutDates[i]);
+                const dayDifference = (expectedDate - nextDate) / (1000 * 60 * 60 * 24);
+                if (dayDifference === 1) {
+                    streak++;
+                    expectedDate = nextDate;
+                } else if (dayDifference > 1) {
+                    break;
+                }
+            }
+        }
+    }
+    return streak;
 }
 
 // Derive level and rank from total strength
@@ -395,28 +922,7 @@ function renderStats() {
         targetDiffEl.textContent = `Target: ${state.weightGoal.toFixed(1)} kg`;
     }
 
-    const workoutDates = [...new Set(state.workoutLogs.map(w => w.date))].sort((a, b) => new Date(b) - new Date(a));
-    let streak = 0;
-    if (workoutDates.length > 0) {
-        const todayStr = new Date().toISOString().split('T')[0];
-        let expectedDate = new Date(workoutDates[0]);
-        const timeDiff = Math.abs(new Date(todayStr) - expectedDate);
-        const diffDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-        
-        if (diffDays <= 1) {
-            streak = 1;
-            for (let i = 1; i < workoutDates.length; i++) {
-                const nextDate = new Date(workoutDates[i]);
-                const dayDifference = (expectedDate - nextDate) / (1000 * 60 * 60 * 24);
-                if (dayDifference === 1) {
-                    streak++;
-                    expectedDate = nextDate;
-                } else if (dayDifference > 1) {
-                    break;
-                }
-            }
-        }
-    }
+    const streak = computeWorkoutStreak();
     streakEl.textContent = `${streak} ${streak === 1 ? 'Day' : 'Days'}`;
 }
 
@@ -591,6 +1097,71 @@ function renderWorkoutHistory() {
     });
 }
 
+// Nutrition — today's summary bars + full food log table
+function renderNutrition() {
+    const goals = state.nutritionGoals;
+    const today = new Date().toISOString().split('T')[0];
+    const todaysLogs = state.nutritionLogs.filter(l => l.date === today);
+
+    const totals = todaysLogs.reduce((acc, l) => {
+        acc.calories += Number(l.calories) || 0;
+        acc.protein += Number(l.protein) || 0;
+        acc.carbs += Number(l.carbs) || 0;
+        acc.fat += Number(l.fat) || 0;
+        return acc;
+    }, { calories: 0, protein: 0, carbs: 0, fat: 0 });
+
+    const setBar = (key, unit, current, goal) => {
+        const textEl = document.getElementById(`nutrition-${key}-text`);
+        const barEl = document.getElementById(`nutrition-${key}-bar`);
+        if (!textEl || !barEl) return;
+        textEl.textContent = `${Math.round(current)} / ${goal} ${unit}`;
+        const pct = goal > 0 ? Math.min(100, (current / goal) * 100) : 0;
+        barEl.style.width = `${pct}%`;
+        barEl.classList.toggle('over', current > goal);
+    };
+
+    setBar('cal', 'kcal', totals.calories, goals.calories);
+    setBar('protein', 'g', totals.protein, goals.protein);
+    setBar('carbs', 'g', totals.carbs, goals.carbs);
+    setBar('fat', 'g', totals.fat, goals.fat);
+
+    const tbody = document.getElementById('nutrition-history-tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    const sortedLogs = [...state.nutritionLogs].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    sortedLogs.forEach(entry => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td style="font-weight: 600;">${entry.date}</td>
+            <td>${entry.mealType || '-'}</td>
+            <td>${entry.name}</td>
+            <td>${entry.calories || 0}</td>
+            <td style="color: var(--text-secondary); font-size: 0.85rem;">${entry.protein || 0}g / ${entry.carbs || 0}g / ${entry.fat || 0}g</td>
+            <td>
+                <button class="btn-delete" data-id="${entry.id}">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    tbody.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-id');
+            state.nutritionLogs = state.nutritionLogs.filter(l => l.id !== id);
+            saveToLocalStorage('nutritionLogs');
+            renderAll();
+        });
+    });
+}
+
 function renderWorkoutSnippet() {
     const listEl = document.getElementById('workout-snippet-list');
     if (!listEl) return;
@@ -717,6 +1288,46 @@ function showPlanDetails(planId) {
 }
 
 // Navigation / Switch Views
+// Exercise Library — populates the dropdown and renders selected exercise details
+function setupExerciseLibrary() {
+    const select = document.getElementById('exercise-select');
+    if (!select) return;
+
+    Object.keys(EXERCISE_LIBRARY).forEach(category => {
+        const group = document.createElement('optgroup');
+        group.label = category;
+        EXERCISE_LIBRARY[category].forEach(ex => {
+            const opt = document.createElement('option');
+            opt.value = `${category}|||${ex.name}`;
+            opt.textContent = ex.name;
+            group.appendChild(opt);
+        });
+        select.appendChild(group);
+    });
+
+    select.addEventListener('change', () => {
+        const detail = document.getElementById('exercise-detail');
+        if (!select.value) {
+            detail.style.display = 'none';
+            return;
+        }
+        const [category, name] = select.value.split('|||');
+        const ex = EXERCISE_LIBRARY[category].find(e => e.name === name);
+        if (!ex) return;
+
+        document.getElementById('exercise-detail-name').textContent = ex.name;
+        document.getElementById('exercise-detail-category').textContent = category;
+
+        const stepsList = document.getElementById('exercise-detail-steps');
+        stepsList.innerHTML = ex.steps.map(s => `<li>${s}</li>`).join('');
+
+        const tipsList = document.getElementById('exercise-detail-tips');
+        tipsList.innerHTML = ex.tips.map(t => `<li>${t}</li>`).join('');
+
+        detail.style.display = 'block';
+    });
+}
+
 function setupEventListeners() {
     const menuItems = document.querySelectorAll('.sidebar-menu .menu-item, .mobile-tabbar .mobile-tab-item');
     const views = document.querySelectorAll('.app-view');
@@ -754,6 +1365,10 @@ function setupEventListeners() {
             } else if (selectedView === 'workouts') {
                 viewTitle.textContent = 'Workout Session Logger';
                 viewSubtitle.textContent = 'Log sets, reps, weight, and track strength trends.';
+                globalActionBtn.style.display = 'none';
+            } else if (selectedView === 'nutrition') {
+                viewTitle.textContent = 'Nutrition Tracker';
+                viewSubtitle.textContent = 'Log meals and keep an eye on calories and macros.';
                 globalActionBtn.style.display = 'none';
             } else if (selectedView === 'plans') {
                 viewTitle.textContent = 'Workout Plans & Roster';
@@ -850,6 +1465,56 @@ function setupEventListeners() {
         document.getElementById('workout-sets').value = '';
         document.getElementById('workout-reps').value = '';
         document.getElementById('workout-load').value = '';
+    });
+
+    // Nutrition — log food
+    document.getElementById('nutrition-log-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('nutrition-food-name').value;
+        const mealType = document.getElementById('nutrition-meal-type').value;
+        const calories = parseFloat(document.getElementById('nutrition-calories').value) || 0;
+        const protein = parseFloat(document.getElementById('nutrition-protein').value) || 0;
+        const carbs = parseFloat(document.getElementById('nutrition-carbs').value) || 0;
+        const fat = parseFloat(document.getElementById('nutrition-fat').value) || 0;
+        const date = document.getElementById('nutrition-date').value;
+
+        state.nutritionLogs.push({ id: 'n_' + Date.now(), date, mealType, name, calories, protein, carbs, fat });
+        saveToLocalStorage('nutritionLogs');
+        renderAll();
+
+        document.getElementById('nutrition-food-name').value = '';
+        document.getElementById('nutrition-calories').value = '';
+        document.getElementById('nutrition-protein').value = '';
+        document.getElementById('nutrition-carbs').value = '';
+        document.getElementById('nutrition-fat').value = '';
+    });
+
+    // Nutrition — edit goals modal
+    const goalsModal = document.getElementById('nutrition-goals-modal');
+    document.getElementById('btn-edit-nutrition-goals').addEventListener('click', () => {
+        document.getElementById('goal-calories').value = state.nutritionGoals.calories;
+        document.getElementById('goal-protein').value = state.nutritionGoals.protein;
+        document.getElementById('goal-carbs').value = state.nutritionGoals.carbs;
+        document.getElementById('goal-fat').value = state.nutritionGoals.fat;
+        goalsModal.classList.add('active');
+    });
+    document.getElementById('nutrition-goals-modal-close').addEventListener('click', () => {
+        goalsModal.classList.remove('active');
+    });
+    goalsModal.addEventListener('click', (e) => {
+        if (e.target === goalsModal) goalsModal.classList.remove('active');
+    });
+    document.getElementById('nutrition-goals-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        state.nutritionGoals = {
+            calories: parseFloat(document.getElementById('goal-calories').value) || 0,
+            protein: parseFloat(document.getElementById('goal-protein').value) || 0,
+            carbs: parseFloat(document.getElementById('goal-carbs').value) || 0,
+            fat: parseFloat(document.getElementById('goal-fat').value) || 0
+        };
+        saveToLocalStorage('nutritionGoals');
+        renderAll();
+        goalsModal.classList.remove('active');
     });
 
     // Plans editor actions
@@ -976,6 +1641,9 @@ function setupEventListeners() {
         document.getElementById('calorie-result-card').style.display = 'block';
     });
 
+    // Exercise Library
+    setupExerciseLibrary();
+
     // Backup & Import
     const fileInput = document.getElementById('import-file-input');
     document.getElementById('btn-export-data').addEventListener('click', () => {
@@ -998,6 +1666,11 @@ function setupEventListeners() {
                 state.weightLogs = imported.weightLogs || [];
                 state.workoutLogs = imported.workoutLogs || [];
                 state.workoutPlans = imported.workoutPlans || DEFAULT_PLANS;
+                state.nutritionLogs = imported.nutritionLogs || [];
+                if (imported.nutritionGoals) {
+                    state.nutritionGoals = imported.nutritionGoals;
+                    saveToLocalStorage('nutritionGoals');
+                }
                 if (imported.weightGoal) {
                     state.weightGoal = parseFloat(imported.weightGoal);
                     localStorage.setItem(namespacedKey('weightGoal'), state.weightGoal);
@@ -1006,6 +1679,7 @@ function setupEventListeners() {
                 saveToLocalStorage('weightLogs');
                 saveToLocalStorage('workouts');
                 saveToLocalStorage('plans');
+                saveToLocalStorage('nutritionLogs');
                 renderAll();
                 alert('Import successful!');
             } catch (err) {
