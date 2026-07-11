@@ -676,15 +676,208 @@ input:focus, select:focus {
     -webkit-text-fill-color: transparent;
 }
 
+/* Mobile-only nav & user bar — hidden on desktop by default */
+.mobile-tabbar {
+    display: none;
+}
+
+.mobile-user-bar {
+    display: none;
+}
+
 /* Responsive elements */
 @media(max-width: 1024px) {
     .app-container {
         grid-template-columns: 1fr;
     }
-    aside {
-        display: none; /* Desktop menu hidden, or build mobile bar if requested */
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
-    /* We can build toggle or standard response rules */
+}
+
+@media(max-width: 768px) {
+    aside {
+        display: none; /* replaced by .mobile-tabbar + .mobile-user-bar below */
+    }
+
+    .mobile-tabbar {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        z-index: 60;
+        background: rgba(11, 13, 25, 0.92);
+        backdrop-filter: blur(20px);
+        border-top: 1px solid var(--glass-border);
+        padding: 0.5rem 0.25rem calc(0.5rem + env(safe-area-inset-bottom, 0px));
+        justify-content: space-around;
+        align-items: center;
+    }
+
+    .mobile-tab-item {
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.2rem;
+        font-family: var(--font-heading);
+        font-size: 0.65rem;
+        font-weight: 600;
+        padding: 0.35rem 0.5rem;
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        transition: var(--transition-smooth);
+    }
+
+    .mobile-tab-item svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .mobile-tab-item.active {
+        color: var(--text-primary);
+    }
+
+    .mobile-tab-item.active svg {
+        color: var(--accent-primary);
+    }
+
+    .mobile-user-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--glass-border);
+    }
+
+    .mobile-user-identity {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+    }
+
+    .mobile-user-identity .avatar {
+        width: 36px;
+        height: 36px;
+        font-size: 0.8rem;
+    }
+
+    .mobile-user-identity .profile-name {
+        font-size: 0.85rem;
+    }
+
+    .mobile-user-identity .profile-role {
+        font-size: 0.7rem;
+    }
+
+    main {
+        padding: 1.25rem 1rem calc(5.5rem + env(safe-area-inset-bottom, 0px));
+        max-height: none;
+    }
+
+    body {
+        overflow-x: hidden;
+    }
+
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .header-title h1 {
+        font-size: 1.5rem;
+    }
+
+    .header-title p {
+        font-size: 0.85rem;
+    }
+
+    .header-actions {
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+    }
+
+    .header-actions button {
+        flex: 1 1 auto;
+        justify-content: center;
+        padding: 0.7rem 1rem;
+        font-size: 0.85rem;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .content-grid,
+    .content-grid[style] {
+        grid-template-columns: 1fr !important;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .editor-exercise-row {
+        grid-template-columns: 1fr 1fr !important;
+        row-gap: 0.5rem;
+    }
+
+    /* Gamification banner: stack on small screens */
+    .gamification-banner {
+        flex-wrap: wrap !important;
+        gap: 1.25rem !important;
+    }
+
+    .gami-left {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .gami-progress-row {
+        flex-wrap: wrap !important;
+        gap: 0.35rem;
+    }
+
+    .gami-checkin {
+        width: 100%;
+        display: flex !important;
+        align-items: center;
+        justify-content: space-between;
+        text-align: left !important;
+    }
+
+    .username-screen {
+        padding: 1.25rem;
+    }
+
+    .username-card {
+        padding: 2rem 1.5rem;
+    }
+
+    .modal-overlay {
+        padding: 1rem;
+    }
+
+    .modal-content {
+        padding: 1.5rem;
+        max-height: 85vh;
+        overflow-y: auto;
+    }
+
+    .levelup-box {
+        width: 100%;
+        max-width: 340px;
+        padding: 2rem 1.5rem;
+    }
 }
 
 /* Workout Plans Features Styles */

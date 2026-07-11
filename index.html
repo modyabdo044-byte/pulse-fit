@@ -126,8 +126,67 @@
             </div>
         </aside>
 
+        <!-- MOBILE BOTTOM TAB BAR (hidden on desktop, shown via CSS on small screens) -->
+        <nav class="mobile-tabbar" id="mobile-tabbar">
+            <button class="mobile-tab-item active" data-view="dashboard">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="9"></rect>
+                    <rect x="14" y="3" width="7" height="5"></rect>
+                    <rect x="14" y="12" width="7" height="9"></rect>
+                    <rect x="3" y="16" width="7" height="5"></rect>
+                </svg>
+                <span>Home</span>
+            </button>
+            <button class="mobile-tab-item" data-view="weight">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+                <span>Weight</span>
+            </button>
+            <button class="mobile-tab-item" data-view="workouts">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                    <path d="M2 8h16v8H2z"></path>
+                    <line x1="6" y1="12" x2="6.01" y2="12"></line>
+                    <line x1="10" y1="12" x2="10.01" y2="12"></line>
+                    <line x1="14" y1="12" x2="14.01" y2="12"></line>
+                </svg>
+                <span>Workouts</span>
+            </button>
+            <button class="mobile-tab-item" data-view="plans">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                </svg>
+                <span>Plans</span>
+            </button>
+            <button class="mobile-tab-item" data-view="tools">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                </svg>
+                <span>Tools</span>
+            </button>
+        </nav>
+
         <!-- Main Workspace -->
         <main>
+            <!-- MOBILE USER BAR (hidden on desktop; sidebar's user info is used there instead) -->
+            <div class="mobile-user-bar" id="mobile-user-bar">
+                <div class="mobile-user-identity">
+                    <div class="avatar" id="mobile-avatar">L1</div>
+                    <div class="profile-info">
+                        <span class="profile-name" id="mobile-username-display">—</span>
+                        <span class="profile-role" id="mobile-level">Level 1 Novice</span>
+                    </div>
+                </div>
+                <button class="btn-switch-user" id="mobile-btn-switch-user" style="width:auto;">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    Switch
+                </button>
+            </div>
+
             <!-- HEADER -->
             <header>
                 <div class="header-title">
@@ -144,13 +203,13 @@
             <!-- VIEW 1: DASHBOARD OVERVIEW -->
             <section id="view-dashboard" class="app-view active">
                 <!-- Level / Gamification Card -->
-                <div class="card-visual" style="min-height: auto; margin-bottom: 2rem; padding: 1.5rem; flex-direction: row; align-items: center; justify-content: space-between; gap: 2rem; background: linear-gradient(135deg, rgba(127, 0, 255, 0.15), rgba(6, 182, 212, 0.15)); border-color: rgba(168, 85, 247, 0.3);">
-                    <div style="display: flex; align-items: center; gap: 1.5rem; flex-grow: 1;">
+                <div class="card-visual gamification-banner" style="min-height: auto; margin-bottom: 2rem; padding: 1.5rem; flex-direction: row; align-items: center; justify-content: space-between; gap: 2rem; background: linear-gradient(135deg, rgba(127, 0, 255, 0.15), rgba(6, 182, 212, 0.15)); border-color: rgba(168, 85, 247, 0.3);">
+                    <div class="gami-left" style="display: flex; align-items: center; gap: 1.5rem; flex-grow: 1;">
                         <div style="background: var(--accent-glow); width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 800; font-family: var(--font-heading); box-shadow: 0 0 20px rgba(168, 85, 247, 0.5);" id="dashboard-level-badge">
                             L1
                         </div>
                         <div style="flex-grow: 1;">
-                            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 0.5rem;">
+                            <div class="gami-progress-row" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 0.5rem;">
                                 <div>
                                     <strong style="font-size: 1.25rem; font-family: var(--font-heading);" id="dashboard-rank-title">Fit Novice</strong>
                                     <span style="font-size: 0.85rem; color: var(--text-secondary); margin-left: 0.5rem;" id="dashboard-total-strength">Total Lifted: 0 kg</span>
@@ -163,7 +222,7 @@
                         </div>
                     </div>
                     <!-- Daily Check-In -->
-                    <div style="text-align:center; flex-shrink:0;">
+                    <div class="gami-checkin" style="text-align:center; flex-shrink:0;">
                         <button class="btn-checkin" id="btn-daily-checkin">
                             <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"></path></svg>
                             Check In
@@ -171,6 +230,7 @@
                         <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.4rem;" id="checkin-streak-label">🔥 0 day streak</div>
                     </div>
                 </div>
+
 
                 <div class="dashboard-grid">
 

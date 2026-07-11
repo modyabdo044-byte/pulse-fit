@@ -132,6 +132,9 @@ function setupUsernameGate() {
     });
 
     switchBtn.addEventListener('click', switchUser);
+
+    const mobileSwitchBtn = document.getElementById('mobile-btn-switch-user');
+    if (mobileSwitchBtn) mobileSwitchBtn.addEventListener('click', switchUser);
 }
 
 function loginAsUser(name) {
@@ -145,6 +148,8 @@ function loginAsUser(name) {
 
     const display = document.getElementById('sidebar-username-display');
     if (display) display.textContent = name;
+    const mobileDisplay = document.getElementById('mobile-username-display');
+    if (mobileDisplay) mobileDisplay.textContent = name;
 
     renderAll();
 }
@@ -282,6 +287,12 @@ function renderLevel(triggerLevelUpAnimation = false) {
     const sidebarLvEl = document.getElementById('sidebar-level');
     if (avatarEl) avatarEl.textContent = `L${level}`;
     if (sidebarLvEl) sidebarLvEl.textContent = `${rank} — Lv.${level}`;
+
+    // Mobile user bar mirrors the same info
+    const mobileAvatarEl = document.getElementById('mobile-avatar');
+    const mobileLvEl = document.getElementById('mobile-level');
+    if (mobileAvatarEl) mobileAvatarEl.textContent = `L${level}`;
+    if (mobileLvEl) mobileLvEl.textContent = `${rank} — Lv.${level}`;
 
     // Detect level up vs previous render
     if (level > state.lastKnownLevel) {
@@ -707,7 +718,7 @@ function showPlanDetails(planId) {
 
 // Navigation / Switch Views
 function setupEventListeners() {
-    const menuItems = document.querySelectorAll('.sidebar-menu .menu-item');
+    const menuItems = document.querySelectorAll('.sidebar-menu .menu-item, .mobile-tabbar .mobile-tab-item');
     const views = document.querySelectorAll('.app-view');
     const viewTitle = document.getElementById('view-title');
     const viewSubtitle = document.getElementById('view-subtitle');
@@ -716,9 +727,11 @@ function setupEventListeners() {
     menuItems.forEach(item => {
         item.addEventListener('click', () => {
             const selectedView = item.getAttribute('data-view');
-            
-            menuItems.forEach(mi => mi.classList.remove('active'));
-            item.classList.add('active');
+
+            // Sync active state across BOTH the desktop sidebar and mobile tab bar
+            menuItems.forEach(mi => {
+                mi.classList.toggle('active', mi.getAttribute('data-view') === selectedView);
+            });
 
             views.forEach(view => {
                 view.classList.remove('active');
